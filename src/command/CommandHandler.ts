@@ -17,10 +17,13 @@ export class CommandHandler {
         if (!msg.content.startsWith(process.env.PREFIX ?? "") || msg.content.length < 2) return;
         let args = msg.content.split(" ");
         let cmd: Command | undefined = this.map.get(args[0].substring(1));
-        if (cmd instanceof Command) cmd.execute(msg.author, args.slice(1));
+        if (!(cmd instanceof Command)) return;
+
+        let result : string = cmd.execute(msg.author, args.slice(1));
+        if (result != "") msg.reply(result);
     }
 
-    constructor(bot: Client) {
+    constructor() {
         CommandHandler._instance = this;
     }
 }

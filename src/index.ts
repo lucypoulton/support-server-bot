@@ -4,6 +4,7 @@ import {DeveloperManager} from "./developer/DeveloperManager";
 import {ChannelManager} from "./ChannelManager";
 import {ReactionManager} from "./ReactionManager";
 import {CommandHandler} from "./command/CommandHandler";
+import {CloseCommand} from "./command/CloseCommand";
 
 const client : Discord.Client = new Discord.Client();
 const manager : DeveloperManager = new DeveloperManager();
@@ -19,7 +20,9 @@ client.on('ready', () => {
     console.log(manager.developers);
     channelManager = new ChannelManager(client);
     reactionManager = new ReactionManager(client, manager, channelManager);
-    commandHandler = new CommandHandler(client);
+    commandHandler = new CommandHandler();
+
+    new CloseCommand();
 
 })
 
