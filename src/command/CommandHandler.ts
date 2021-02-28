@@ -1,4 +1,4 @@
-import {Client, Message} from "discord.js";
+import {Message} from "discord.js";
 import {Command} from "./Command";
 
 export class CommandHandler {
@@ -19,7 +19,7 @@ export class CommandHandler {
         let cmd: Command | undefined = this.map.get(args[0].substring(1));
         if (!(cmd instanceof Command)) return;
 
-        let result : string = cmd.execute(msg.author, args.slice(1));
+        let result : string = cmd.execute(msg, args.slice(1));
         if (result != "") msg.reply(result);
     }
 

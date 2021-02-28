@@ -2,27 +2,35 @@ import * as Discord from "discord.js";
 import * as dotenv from 'dotenv';
 import {DeveloperManager} from "./developer/DeveloperManager";
 import {ChannelManager} from "./ChannelManager";
-import {ReactionManager} from "./ReactionManager";
+import {ReactionHandler} from "./ReactionHandler";
 import {CommandHandler} from "./command/CommandHandler";
-import {CloseCommand} from "./command/CloseCommand";
+import {CloseCommand} from "./command/channel/CloseCommand";
+import {DeleteCommand} from "./command/channel/DeleteCommand";
+import {AddUserCommand} from "./command/channel/AddUserCommand";
+import {ReopenCommand} from "./command/channel/ReopenCommand";
+import {StatusCommand} from "./command/developer/StatusCommand";
 
 const client : Discord.Client = new Discord.Client();
-const manager : DeveloperManager = new DeveloperManager();
+const developerManager : DeveloperManager = new DeveloperManager();
 let channelManager: ChannelManager;
-let reactionManager: ReactionManager;
+let reactionHandler: ReactionHandler;
 let commandHandler: CommandHandler;
 
 client.on('ready', () => {
     // this will never happen, it's just to shut ts up
     if (client.user == null) return;
 
-    console.log(`Logged in as ${client.user.tag}!`);
-    console.log(manager.developers);
-    channelManager = new ChannelManager(client);
-    reactionManager = new ReactionManager(client, manager, channelManager);
+    console.log(`Logged in as ${client.user.tag}!\nCaching developers`);
+    channelManager = new ChannelManager(client, developerManager);
+    reactionHandler = new ReactionHandler(client, developerManager, channelManager);
     commandHandler = new CommandHandler();
 
-    new CloseCommand();
+    new CloseCommand(channelManager);
+    new DeleteCommand(channelManager);
+    new AddUserCommand(channelManager);
+    new ReopenCommand(channelManager);
+
+    new StatusCommand(developerManager, reactionHandler);
 
 })
 

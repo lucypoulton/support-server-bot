@@ -8,8 +8,7 @@ export class Developer {
     private _displayName: string;
     // @ts-ignore
     private _emoji: string;
-    // @ts-ignore
-    private _ticketCounter: number;
+    private _ticketCounter: number = 0;
 
     private readonly _gitName: string | null = null;
     private _message: string | null = null;
@@ -49,22 +48,29 @@ export class Developer {
     }
 
     get ticketCounter(): number {
-        return this._ticketCounter ?? 0;
+        return this._ticketCounter;
+    }
+
+    incrementTicketCounter() : number
+    {
+        this._ticketCounter++;
+        this._manager.addOrUpdateDev(this);
+        return this._ticketCounter;
     }
 
     set ticketCounter(value: number) {
         this._ticketCounter = value;
-        this._manager.save();
+        this._manager.addOrUpdateDev(this);
     }
 
     asObject(): object {
         return {
-            "id": this.id,
-            "displayName": this.displayName,
-            "emoji": this.emoji,
-            "gitName": this._gitName,
-            "message": this.message,
-            "counter": this.ticketCounter
+            "_id": this.id,
+            "_displayName": this.displayName,
+            "_emoji": this.emoji,
+            "_gitName": this._gitName,
+            "_message": this.message,
+            "_ticketCounter": this.ticketCounter
         }
     };
 

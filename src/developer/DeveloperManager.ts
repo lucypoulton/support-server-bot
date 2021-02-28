@@ -6,8 +6,8 @@ export class DeveloperManager {
     private _developers: Map<string, Developer> = new Map<string, Developer>();
     private readonly _dataPath: string;
 
-    private static mapToJson(map: Map<string, Developer>): string {
-        return JSON.stringify(Object.values(map).map(d => d.asObject()));
+    private static arrayToJson(array: Developer[]): string {
+        return JSON.stringify(array.map(d => d.asObject()));
     }
 
     private jsonToMap(jsonStr: string): Map<string, Developer> {
@@ -22,11 +22,11 @@ export class DeveloperManager {
     }
 
     public save(): void {
-        fs.writeFile(this._dataPath, DeveloperManager.mapToJson(this._developers));
+        fs.writeFile(this._dataPath, DeveloperManager.arrayToJson(this.developers));
     }
 
     public addOrUpdateDev(dev: Developer): void {
-        this._developers.set(dev.gitName, dev);
+        this._developers.set(dev.id, dev);
         this.save();
     }
 
@@ -40,7 +40,7 @@ export class DeveloperManager {
             .then((file) => {
                 file.readFile()
                     .then(data => {
-                        this._developers = this.jsonToMap(data.toString())
+                        this._developers = this.jsonToMap(data.toString());
                     })
 
                     .finally(() => file.close());

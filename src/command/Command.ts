@@ -1,11 +1,11 @@
-import {User} from "discord.js";
+import {Message} from "discord.js";
 import {CommandHandler} from "./CommandHandler";
 
 export abstract class Command {
-    abstract readonly name: string;
-    abstract execute(user: User, args: string[]): string;
+    public abstract get name(): string;
+    abstract execute(message: Message, args: string[]): string;
 
-    private Command() {
+    protected constructor() {
        CommandHandler.instance.register(this);
     }
 }

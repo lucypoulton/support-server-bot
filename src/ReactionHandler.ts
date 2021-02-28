@@ -5,13 +5,13 @@ import {DeveloperManager} from "./developer/DeveloperManager";
 import {ChannelManager} from "./ChannelManager";
 import {Developer} from "./developer/Developer";
 
-export class ReactionManager {
+export class ReactionHandler {
     private reactionMessage: string = "";
     private channelManager: ChannelManager;
     private devManager: DeveloperManager;
     private bot: Discord.Client;
 
-    private handleTicketReaction(reaction: MessageReaction, user: User, manager: ReactionManager): void {
+    private handleTicketReaction(reaction: MessageReaction, user: User, manager: ReactionHandler): void {
         if (user.bot) return;
         let dev: Developer | undefined = manager.devManager.developers.find(dev => dev.emoji == reaction.emoji.toString());
         if (dev instanceof Developer) this.channelManager.createChannel(dev, user);
@@ -43,7 +43,8 @@ export class ReactionManager {
                 x.messages.fetch({limit: 50}).then(hist => hist.forEach(c => c.delete()));
                 let description: String = "";
                 this.devManager.developers.forEach(dev => {
-                    description += `React with ${dev.emoji} for ${dev.displayName}\n`
+                    description += `React with ${dev.emoji} for ${dev.displayName} ` +
+                        `${dev.message != null ? `(note: ${dev.displayName} is ${dev.message})` : ""}\n`
                 })
                 x.send(new Discord.MessageEmbed()
                     .setTitle("Open a Ticket")
