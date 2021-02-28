@@ -13,6 +13,10 @@ export class CommandHandler {
         this.map.set(cmd.name, cmd);
     }
 
+    registerManual(name: string, cmd: Command): void {
+        this.map.set(name, cmd);
+    }
+
     handle(msg: Message): void {
         if (!msg.content.startsWith(process.env.PREFIX ?? "") || msg.content.length < 2) return;
         let args = msg.content.split(" ");

@@ -4,3 +4,4 @@ dist/
 .idea
 data.json
 channels.json
+aliases.json

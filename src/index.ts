@@ -9,6 +9,7 @@ import {DeleteCommand} from "./command/channel/DeleteCommand";
 import {AddUserCommand} from "./command/channel/AddUserCommand";
 import {ReopenCommand} from "./command/channel/ReopenCommand";
 import {StatusCommand} from "./command/developer/StatusCommand";
+import {AliasCommand} from "./command/AliasCommand";
 
 const client : Discord.Client = new Discord.Client();
 const developerManager : DeveloperManager = new DeveloperManager();
@@ -31,6 +32,10 @@ client.on('ready', () => {
     new ReopenCommand(channelManager);
 
     new StatusCommand(developerManager, reactionHandler);
+
+
+
+    new AliasCommand();
 
 })
 
