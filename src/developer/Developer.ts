@@ -8,6 +8,8 @@ export class Developer {
     private _displayName: string;
     // @ts-ignore
     private _emoji: string;
+    // @ts-ignore
+    private _ticketCounter: number;
 
     private readonly _gitName: string | null = null;
     private _message: string | null = null;
@@ -43,7 +45,16 @@ export class Developer {
     }
 
     get gitName(): string {
-        return this._gitName == null ? this.displayName : this._gitName;
+        return this._gitName  ?? this.displayName;
+    }
+
+    get ticketCounter(): number {
+        return this._ticketCounter ?? 0;
+    }
+
+    set ticketCounter(value: number) {
+        this._ticketCounter = value;
+        this._manager.save();
     }
 
     asObject(): object {
@@ -52,7 +63,8 @@ export class Developer {
             "displayName": this.displayName,
             "emoji": this.emoji,
             "gitName": this._gitName,
-            "message": this.message
+            "message": this.message,
+            "counter": this.ticketCounter
         }
     };
 

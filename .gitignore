@@ -3,3 +3,4 @@ dist/
 .env
 .idea
 data.json
+channels.json

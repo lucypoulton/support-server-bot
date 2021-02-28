@@ -35,7 +35,7 @@ export class DeveloperManager {
     }
 
     constructor() {
-        this._dataPath = process.env["DATAFILE"] ?? "data.json"
+        this._dataPath = process.env["DATA_FILE"] ?? "data.json"
         fs.open(this._dataPath, "r")
             .then((file) => {
                 file.readFile()

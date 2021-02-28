@@ -1,6 +1,6 @@
 import * as Discord from "discord.js";
 import * as assert from "assert";
-import {MessageReaction, TextChannel, User} from "discord.js";
+import {Channel, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {DeveloperManager} from "./developer/DeveloperManager";
 import {ChannelManager} from "./ChannelManager";
 import {Developer} from "./developer/Developer";
@@ -11,12 +11,29 @@ export class ReactionManager {
     private devManager: DeveloperManager;
     private bot: Discord.Client;
 
-    private handleReaction(reaction: MessageReaction, user: User, manager: ReactionManager): void {
+    private handleTicketReaction(reaction: MessageReaction, user: User, manager: ReactionManager): void {
         if (user.bot) return;
         let dev: Developer | undefined = manager.devManager.developers.find(dev => dev.emoji == reaction.emoji.toString());
-        assert.ok(dev instanceof Developer);
-        this.channelManager.createChannel(dev, user);
-        reaction.remove().catch(console.warn);
+        if (dev instanceof Developer) this.channelManager.createChannel(dev, user);
+        reaction.users.remove(user).catch(console.warn);
+    }
+
+    public onReact(reaction: MessageReaction, user: User | PartialUser, channelManager: ChannelManager): void {
+        if (!(user instanceof User) || user.bot || !channelManager.channels.includes(reaction.message.channel.id)) return;
+        assert.ok(reaction.message.channel instanceof TextChannel);
+        if (reaction.message.author.id != this.bot.user?.id) return;
+        switch (reaction.emoji.name) {
+            case "\ud83d\udd12": // closed padlock
+                this.channelManager.closeTicket(reaction.message.channel);
+                break;
+            case "\ud83d\udd13": // open padlock
+                this.channelManager.openTicket(reaction.message.channel);
+                break;
+            case "\ud83d\uddd1\ufe0f": // waste basket
+                this.channelManager.deleteTicket(reaction.message.channel);
+                break;
+        }
+        reaction.users.remove(user).catch(console.warn);
     }
 
     public regenMessage() {
@@ -26,7 +43,7 @@ export class ReactionManager {
                 x.messages.fetch({limit: 50}).then(hist => hist.forEach(c => c.delete()));
                 let description: String = "";
                 this.devManager.developers.forEach(dev => {
-                    description += `React with ${dev.emoji} for ${dev.displayName}`
+                    description += `React with ${dev.emoji} for ${dev.displayName}\n`
                 })
                 x.send(new Discord.MessageEmbed()
                     .setTitle("Open a Ticket")
@@ -37,7 +54,7 @@ export class ReactionManager {
                         this.reactionMessage = msg.id;
                         this.devManager.developers.forEach(dev => msg.react(dev.emoji));
                         msg.createReactionCollector(x => true, {})
-                            .on("collect", (a, b) => this.handleReaction(a, b, this));
+                            .on("collect", (a, b) => this.handleTicketReaction(a, b, this));
                     })
             });
     }
@@ -47,5 +64,6 @@ export class ReactionManager {
         this.channelManager = channelManager;
         this.bot = bot;
         this.regenMessage();
+        bot.on("messageReactionAdd", (a,b) => this.onReact(a, b, this.channelManager));
     }
 }
