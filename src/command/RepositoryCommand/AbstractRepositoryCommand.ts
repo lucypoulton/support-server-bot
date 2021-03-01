@@ -21,22 +21,33 @@ import {Message} from "discord.js";
 import {DeveloperManager} from "../../developer/DeveloperManager";
 import {Developer} from "../../developer/Developer";
 
-export abstract class AbstractDeveloperCommand extends Command {
+export abstract class AbstractRepositoryCommand extends Command {
     protected devMan: DeveloperManager;
 
-    protected abstract execChannelAction(dev: Developer, args?: string[]): string | null;
+    protected abstract execChannelAction(repo: string, args?: string[]): string | null;
 
     execute(message: Message, args: string[]): string {
-        let dev: Developer | undefined = this.devMan.developers.find(d => d.id == message.author.id);
-        if (dev == undefined) {
-            message.reply("you do not have permission to use this command")
-                .then(x => x.delete({timeout: 5000}));
-            return "";
+        if (args.length == 0) return "";
+
+        let repoName: string;
+        if (args[0].includes("/")) {
+            repoName = args[0];
+        } else {
+            let dev: Developer | undefined = this.devMan.developers.find(d => d.id == message.author.id);
+            if (dev == undefined) {
+                message.reply("you are not an authorised developer, please specify a developer i.e. Lucy/ProNouns")
+                    .then(x => x.delete({timeout: 5000}));
+                return "";
+            }
+            repoName = dev.gitName + "/" + args[0];
         }
-        return this.execChannelAction(dev, args) ?? "";
+
+        let result = this.execChannelAction(repoName, args) ?? "";
+        if (result != "") message.channel.send(process.env["GIT_REPOSITORY"] + result);
+        return "";
     }
 
-    protected constructor(devMan: DeveloperManager) {
+    constructor(devMan: DeveloperManager) {
         super();
         this.devMan = devMan;
     }

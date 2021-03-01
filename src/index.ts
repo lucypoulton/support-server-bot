@@ -28,6 +28,9 @@ import {AddUserCommand} from "./command/channel/AddUserCommand";
 import {ReopenCommand} from "./command/channel/ReopenCommand";
 import {StatusCommand} from "./command/developer/StatusCommand";
 import {AliasCommand} from "./command/AliasCommand";
+import {IssuesCommand} from "./command/RepositoryCommand/IssuesCommand";
+import {SourceCommand} from "./command/RepositoryCommand/SourceCommand";
+import {LatestCommand} from "./command/RepositoryCommand/LatestCommand";
 
 const client : Discord.Client = new Discord.Client();
 const developerManager : DeveloperManager = new DeveloperManager();
@@ -52,6 +55,10 @@ client.on('ready', () => {
     new StatusCommand(developerManager, reactionHandler);
 
     new AliasCommand();
+
+    new IssuesCommand(developerManager);
+    new SourceCommand(developerManager);
+    new LatestCommand(developerManager);
 
 })
 
