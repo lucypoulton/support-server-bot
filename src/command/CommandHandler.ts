@@ -18,10 +18,12 @@
 
 import {Message} from "discord.js";
 import {Command} from "./Command";
+import {RateLimiter} from "../RateLimiter";
 
 export class CommandHandler {
     private static _instance: CommandHandler;
     private map: Map<string, Command> = new Map<string, Command>();
+    private ratelimit: RateLimiter = new RateLimiter(15000, 3); // 3 every 15 secs
 
     static get instance() {
         return CommandHandler._instance;
@@ -37,11 +39,17 @@ export class CommandHandler {
 
     handle(msg: Message): void {
         if (!msg.content.startsWith(process.env.PREFIX ?? "") || msg.content.length < 2) return;
+        if (!this.ratelimit.act(msg.author.id)) {
+            if (this.ratelimit.shouldPrompt(msg.author.id))
+                msg.reply("you're doing that too fast, please slow down!")
+            return;
+
+        }
         let args = msg.content.split(" ");
         let cmd: Command | undefined = this.map.get(args[0].substring(1));
         if (!(cmd instanceof Command)) return;
 
-        let result : string = cmd.execute(msg, args.slice(1));
+        let result: string = cmd.execute(msg, args.slice(1));
         if (result != "") msg.reply(result);
     }
 

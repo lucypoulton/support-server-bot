@@ -51,8 +51,6 @@ client.on('ready', () => {
 
     new StatusCommand(developerManager, reactionHandler);
 
-
-
     new AliasCommand();
 
 })

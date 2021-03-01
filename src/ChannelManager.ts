@@ -19,9 +19,10 @@
 import * as Discord from "discord.js";
 import {Developer} from "./developer/Developer";
 import fs from "fs/promises";
-import {Channel, TextChannel, User} from "discord.js";
+import {Channel, TextChannel} from "discord.js";
 import * as assert from "assert";
 import {DeveloperManager} from "./developer/DeveloperManager";
+import {RateLimiter} from "./RateLimiter";
 
 export class ChannelManager {
     private bot: Discord.Client;
@@ -29,6 +30,8 @@ export class ChannelManager {
     private guild: Discord.Guild;
     // @ts-ignore
     private channel: Discord.Channel;
+
+    private ratelimit: RateLimiter = new RateLimiter(30000,1); // 1 every 60 secs
 
     private _channels: string[] = [];
     get channels(): string[] {
@@ -96,6 +99,13 @@ export class ChannelManager {
 
 
     public createChannel(developer: Developer, client: Discord.User): void {
+        if (!this.ratelimit.act(client.id)) {
+            if (this.ratelimit.shouldPrompt(client.id)) {
+                client.createDM().then(x => x.send("You're trying to create tickets too fast. Please slow down."));
+            }
+            return;
+        }
+
         this.guild.channels.create(`${developer.displayName}-${developer.incrementTicketCounter()}`,
             {
                 parent: this.channel,
