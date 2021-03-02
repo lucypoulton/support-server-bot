@@ -22,6 +22,7 @@ import {MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {DeveloperManager} from "./developer/DeveloperManager";
 import {ChannelManager} from "./ChannelManager";
 import {Developer} from "./developer/Developer";
+import {Config} from "./Config";
 
 export class ReactionHandler {
     private reactionMessage: string = "";
@@ -55,7 +56,7 @@ export class ReactionHandler {
     }
 
     public regenMessage() {
-        this.bot.channels.fetch(process.env["CHANNEL_ID"] ?? "")
+        this.bot.channels.fetch(Config.getString("ticketReactChannelId"))
             .then(x => {
                 assert.ok(x instanceof TextChannel);
                 x.messages.fetch({limit: 50}).then(hist => hist.forEach(c => c.delete()));

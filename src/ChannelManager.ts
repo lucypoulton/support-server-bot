@@ -23,6 +23,7 @@ import {Channel, TextChannel} from "discord.js";
 import * as assert from "assert";
 import {DeveloperManager} from "./developer/DeveloperManager";
 import {RateLimiter} from "./RateLimiter";
+import {Config} from "./Config";
 
 export class ChannelManager {
     private bot: Discord.Client;
@@ -38,7 +39,7 @@ export class ChannelManager {
         return this._channels;
     }
 
-    private readonly channelsPath: string;
+    private readonly channelsPath: string = "channels.json";
 
     private createPerms(ids: string[], perms: { allow?: string[], deny?: string[] }) {
         let ret: Discord.OverwriteResolvable[] = [];
@@ -88,12 +89,11 @@ export class ChannelManager {
 
     constructor(bot: Discord.Client, dev: DeveloperManager) {
         this.bot = bot;
-        bot.guilds.fetch(process.env["GUILD_ID"] ?? "")
+        bot.guilds.fetch(Config.getString("guildId"))
             .then(x => this.guild = x);
-        bot.channels.fetch(process.env["CATEGORY_ID"] ?? "")
+        bot.channels.fetch(Config.getString("ticketCategoryId"))
             .then(x => this.channel = x);
 
-        this.channelsPath = process.env["CHANNELS_FILE"] ?? "channels.json";
         this.init(bot, dev).then(_ => console.log("Finished caching channels"));
     }
 
@@ -119,7 +119,7 @@ export class ChannelManager {
                 ${developer.message == null ? "" : `Please note that ${developer.displayName} is ${developer.message}.\n`}
                 <@${developer.id.toString()}>`
                     )
-                    .setFooter(`React with \ud83d\udd12 or type ${process.env["PREFIX"]}close to close this ticket`)
+                    .setFooter(`React with \ud83d\udd12 or type ${Config.getString("prefix")}close to close this ticket`)
                 ).then(msg => msg.react("\ud83d\udd12"));
                 this._channels.push(ch.id);
                 this.save();
@@ -134,8 +134,8 @@ export class ChannelManager {
                 chan.send(new Discord.MessageEmbed()
                     .setTitle("Ticket Closed")
                     .setColor("#ff77ff")
-                    .setDescription(`React with \ud83d\udd13 or type ${process.env["PREFIX"]}reopen to re-open\n` +
-                        `React with \ud83d\uddd1\ufe0f or type ${process.env["PREFIX"]}delete to delete`)
+                    .setDescription(`React with \ud83d\udd13 or type ${Config.getString("prefix")}reopen to re-open\n` +
+                        `React with \ud83d\uddd1\ufe0f or type ${Config.getString("prefix")}delete to delete`)
                 ).then(msg => {
                     msg.react("\ud83d\udd13");
                     msg.react("\ud83d\uddd1\ufe0f");
@@ -151,7 +151,7 @@ export class ChannelManager {
                 chan.send(new Discord.MessageEmbed()
                     .setTitle("Ticket Reopened")
                     .setColor("#ff77ff")
-                    .setDescription(`React with \ud83d\udd12 or type ${process.env["PREFIX"]}close to close this ticket`)
+                    .setDescription(`React with \ud83d\udd12 or type ${Config.getString("prefix")}close to close this ticket`)
                 ).then(msg => {
                     msg.react("\ud83d\udd12");
                 })
@@ -174,7 +174,7 @@ export class ChannelManager {
             .setTitle("User added")
             .setColor("#ff77ff")
             .setDescription(`Added user <@${userId}>`)
-            .setFooter(`React with \ud83d\udd12 or type ${process.env["PREFIX"]}close to close this ticket`)
+            .setFooter(`React with \ud83d\udd12 or type ${Config.getString("prefix")}close to close this ticket`)
         ));
     }
 }

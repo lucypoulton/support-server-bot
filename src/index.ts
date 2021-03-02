@@ -31,9 +31,11 @@ import {AliasCommand} from "./command/AliasCommand";
 import {IssuesCommand} from "./command/RepositoryCommand/IssuesCommand";
 import {SourceCommand} from "./command/RepositoryCommand/SourceCommand";
 import {LatestCommand} from "./command/RepositoryCommand/LatestCommand";
+import {Config} from "./Config";
+import {ReactionRoles} from "./ReactionRoles";
 
-const client : Discord.Client = new Discord.Client();
-const developerManager : DeveloperManager = new DeveloperManager();
+const client: Discord.Client = new Discord.Client();
+const developerManager: DeveloperManager = new DeveloperManager();
 let channelManager: ChannelManager;
 let reactionHandler: ReactionHandler;
 let commandHandler: CommandHandler;
@@ -47,6 +49,8 @@ client.on('ready', () => {
     reactionHandler = new ReactionHandler(client, developerManager, channelManager);
     commandHandler = new CommandHandler();
 
+    new ReactionRoles(client);
+
     new CloseCommand(channelManager);
     new DeleteCommand(channelManager);
     new AddUserCommand(channelManager);
@@ -59,7 +63,6 @@ client.on('ready', () => {
     new IssuesCommand(developerManager);
     new SourceCommand(developerManager);
     new LatestCommand(developerManager);
-
 })
 
 client.on("message", (message) => {
@@ -69,8 +72,12 @@ client.on("message", (message) => {
 function run() {
     console.log("Starting")
     dotenv.config();
-    client.login(process.env["BOT_TOKEN"] ?? "")
-        .then(() => { console.log("Login success")});
+    Config.config.init().then(_ => {
+        client.login(Config.getString("botToken") ?? "")
+            .then(() => {
+                console.log("Login success")
+            });
+    });
 }
 
 run();

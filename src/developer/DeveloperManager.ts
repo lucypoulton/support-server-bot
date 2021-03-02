@@ -22,7 +22,7 @@ import * as assert from "assert";
 
 export class DeveloperManager {
     private _developers: Map<string, Developer> = new Map<string, Developer>();
-    private readonly _dataPath: string;
+    private readonly _dataPath: string = "data.json";
 
     private static arrayToJson(array: Developer[]): string {
         return JSON.stringify(array.map(d => d.asObject()));
@@ -53,7 +53,6 @@ export class DeveloperManager {
     }
 
     constructor() {
-        this._dataPath = process.env["DATA_FILE"] ?? "data.json"
         fs.open(this._dataPath, "r")
             .then((file) => {
                 file.readFile()

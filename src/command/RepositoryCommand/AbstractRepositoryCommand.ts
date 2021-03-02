@@ -20,6 +20,7 @@ import {Command} from "../Command";
 import {Message} from "discord.js";
 import {DeveloperManager} from "../../developer/DeveloperManager";
 import {Developer} from "../../developer/Developer";
+import {Config} from "../../Config";
 
 export abstract class AbstractRepositoryCommand extends Command {
     protected devMan: DeveloperManager;
@@ -43,7 +44,7 @@ export abstract class AbstractRepositoryCommand extends Command {
         }
 
         let result = this.execChannelAction(repoName, args) ?? "";
-        if (result != "") message.channel.send(process.env["GIT_REPOSITORY"] + result);
+        if (result != "") message.channel.send(Config.getString("gitRepository") + result);
         return "";
     }
 

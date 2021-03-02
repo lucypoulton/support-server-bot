@@ -1,0 +1,16 @@
+{
+  "guildId": "12345",
+  "ticketCategoryId": "12345",
+  "botToken": "TOKEN",
+  "reactionRoleChannelId": "12345",
+  "ticketReactChannelId": "12345",
+  "gitRepository": "https://git.lucyy.me/",
+  "prefix": "?",
+  "aliases": {
+    "xy": "https://xyproblem.info",
+    "paste": "https://paste.lucyy.me"
+  },
+  "reactionRoles": {
+    "😀": "12345"
+  }
+}
