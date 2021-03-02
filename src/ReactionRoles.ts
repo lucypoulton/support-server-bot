@@ -80,9 +80,10 @@ export class ReactionRoles {
             c[1].delete().catch(console.warn);
         }
         let description: String = "";
-        this.roleMap.forEach((a, b) => {
-            description += `React with ${b} for ${a}\n`;
-        })
+        for (let role of this.roleMap) {
+            let roleFetched = await this.guild.roles.fetch(role[1]);
+            description += `React with ${role[0]} for ${roleFetched?.name}\n`;
+        }
         let msg = await chan.send(new Discord.MessageEmbed()
             .setTitle("Reaction Roles")
             .setColor("#ff77ff")
@@ -94,10 +95,7 @@ export class ReactionRoles {
             .on("collect", (a, b) => this.handleTicketReaction(a, b, this));
     }
 
-    constructor(bot
-                    :
-                    Discord.Client
-    ) {
+    constructor(bot: Discord.Client) {
         this.bot = bot;
         // @ts-ignore
         let json: object = Config.config.data["reactionRoles"];
