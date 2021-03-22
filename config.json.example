@@ -12,5 +12,9 @@
   },
   "reactionRoles": {
     "😀": "12345"
+  },
+  "bstatsPlugins": {
+    "pronouns": 9519,
+    "profiles": 10559
   }
 }

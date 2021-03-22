@@ -33,6 +33,7 @@ import {SourceCommand} from "./command/RepositoryCommand/SourceCommand";
 import {LatestCommand} from "./command/RepositoryCommand/LatestCommand";
 import {Config} from "./Config";
 import {ReactionRoles} from "./ReactionRoles";
+import {BstatsCommmand} from "./command/BstatsCommmand";
 
 const client: Discord.Client = new Discord.Client();
 const developerManager: DeveloperManager = new DeveloperManager();
@@ -63,6 +64,8 @@ client.on('ready', () => {
     new IssuesCommand(developerManager);
     new SourceCommand(developerManager);
     new LatestCommand(developerManager);
+
+    new BstatsCommmand();
 })
 
 client.on("message", (message) => {
