@@ -30,7 +30,7 @@ export class BstatsCommmand extends Command {
         super();
 
         // @ts-ignore
-        let json: object = Config.config.data["bstatsPlugins"];
+        let json: object = Config.config.data["bstats"]["plugins"];
         for (let value in json) {
             if (!json.hasOwnProperty(value)) continue;
             // @ts-ignore
@@ -38,36 +38,28 @@ export class BstatsCommmand extends Command {
         }
     }
 
-    static transformData(input: string[][]): object[] {
-        let out: object[] = [];
-        for (let datum of input) out.push({
-            "timestamp": datum[0],
-            "value": datum[1]
-        });
-        return out;
+    static caps(input: string) : string {
+        return input[0].toUpperCase() + input.substring(1).toLowerCase();
+    }
+
+    static async getChart(id: string, chart: string): Promise<string> {
+        let chartData = await fetch(`https://bstats.org/api/v1/plugins/${id}/charts/${chart}/data`);
+        let chartJson = await chartData.json();
+        return chartJson[chartJson.length - 1][1];
     }
 
     static async getCharts(id: string): Promise<Map<string, string>> {
         let out: Map<string, string> = new Map<string, string>();
-        let chartsRaw = await fetch(`https://bstats.org/api/v1/plugins/${id}/charts`);
-        let charts = await chartsRaw.json();
-        let serverCount: number = 0;
-        for (let chart of Object.keys(charts)) {
-            let chartData = await fetch(`https://bstats.org/api/v1/plugins/${id}/charts/${chart}/data`);
-            let chartJson = await chartData.json();
-            let chartName = charts[chart]["title"];
-            if (chart == "servers") serverCount = chartJson[chartJson.length - 1][1];
-            switch (charts[chart]["type"]) {
-                case "single_linechart":
-                    out.set(chartName, chartJson[chartJson.length - 1][1]);
-                    break;
-                case "simple_pie":
-                    let output = "";
-                    for (let datum of chartJson) output += `${((datum["y"] / serverCount) * 100).toFixed(2)}% ${datum["name"]}\n`
-                    out.set(chartName, output);
-                    break;
-            }
+        let promises: Promise<string>[] = [];
+        // @ts-ignore
+        for (let chart of Config.config.data["bstats"]["charts"]) {
+            let promise: Promise<string> = this.getChart(id, chart);
+            promises.push(promise);
+            promise.then(x => {
+                if (x != "") out.set(BstatsCommmand.caps(chart), x)
+            });
         }
+        await Promise.all(promises);
 
         return out;
     }
@@ -79,8 +71,8 @@ export class BstatsCommmand extends Command {
             .then((result: Response) => result.json())
             .then((json: any) => {
                 const embed = new Discord.MessageEmbed();
-                embed.setTitle(json["name"]);
-                embed.setDescription(`by ${json["owner"]["name"]}`);
+                embed.setTitle(`${json["name"]} by ${json["owner"]["name"]}`);
+                embed.setURL(`https://bstats.org/plugin/bukkit/${json["name"]}/${pluginId}`);
                 BstatsCommmand.getCharts(pluginId)
                     .then((charts: Map<string, string>) => {
                         for (let chart of charts.keys()) {
